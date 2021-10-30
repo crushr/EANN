@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>卷积神经网络中的卷积操作本质 - 恶龙我要一打五！</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="恶龙我要一打五！"><meta name="msapplication-TileImage" content="/img/logo.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="恶龙我要一打五！"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="CNN的来源在上周的学习中有所提及，模仿人脑神经网络结构识别图片的过程去进行机器学习。而CNN中的卷积和概率论中的卷积是否一样，又有什么联系呢。我带着这样的疑问又开始研究：什么是图像卷积操作？"><meta property="og:type" content="blog"><meta property="og:title" content="卷积神经网络中的卷积操作本质"><meta property="og:url" content="https://crushr.github.io/%E6%9A%91%E6%9C%9F%E5%AD%A6%E4%B9%A0/%E5%91%A8%E6%8A%A5%E5%91%8A-%E9%92%9F%E5%96%84%E7%94%B7-2021-7-18.html"><meta property="og:site_name" content="恶龙我要一打五！"><meta property="og:description" content="CNN的来源在上周的学习中有所提及，模仿人脑神经网络结构识别图片的过程去进行机器学习。而CNN中的卷积和概率论中的卷积是否一样，又有什么联系呢。我带着这样的疑问又开始研究：什么是图像卷积操作？"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://crushr.github.io/img/juanji.png"><meta property="article:published_time" content="2021-07-17T16:00:00.000Z"><meta property="article:modified_time" content="2021-07-25T13:05:02.493Z"><meta property="article:author" content="恶龙"><meta property="article:tag" content="卷积操作本质"><meta property="article:tag" content="CNN"><meta property="article:tag" content="神经网络"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/img/juanji.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://crushr.github.io/%E6%9A%91%E6%9C%9F%E5%AD%A6%E4%B9%A0/%E5%91%A8%E6%8A%A5%E5%91%8A-%E9%92%9F%E5%96%84%E7%94%B7-2021-7-18.html"},"headline":"恶龙我要一打五！","image":["https://crushr.github.io/img/juanji.png"],"datePublished":"2021-07-17T16:00:00.000Z","dateModified":"2021-07-25T13:05:02.493Z","author":{"@type":"Person","name":"恶龙"},"description":"CNN的来源在上周的学习中有所提及，模仿人脑神经网络结构识别图片的过程去进行机器学习。而CNN中的卷积和概率论中的卷积是否一样，又有什么联系呢。我带着这样的疑问又开始研究：什么是图像卷积操作？"}</script><link rel="canonical" href="https://crushr.github.io/%E6%9A%91%E6%9C%9F%E5%AD%A6%E4%B9%A0/%E5%91%A8%E6%8A%A5%E5%91%8A-%E9%92%9F%E5%96%84%E7%94%B7-2021-7-18.html"><link rel="icon" href="/img/logo.png"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/5.12.0/css/all.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/highlight.js/9.12.0/styles/github-gist.min.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.7.0/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/pace/1.0.2/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 5.4.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo1.png" alt="恶龙我要一打五！" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">主页</a><a class="navbar-item" href="/archives/">归档</a><a class="navbar-item" href="/categories/">分类</a><a class="navbar-item" href="/tags/">标签</a><a class="navbar-item" href="/about/">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="AlphaLxy GitHub" href="https://www.github.com/crushr"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-image"><span class="image is-7by3"><img class="fill" src="/img/juanji.png" alt="卷积神经网络中的卷积操作本质"></span></div><article class="card-content article" role="article"><h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal"><i class="fas fa-angle-double-right"></i>卷积神经网络中的卷积操作本质</h1><div class="content"><p>　　上周我对深度学习、机器学习、神经网络进行了概念上的学习，但是在真正的实践应用上，还是不太清楚，在上面 textCNN 上的一些步骤的过渡产生了疑惑。为了更好的理解论文的第三章，我对 CNN 中的卷积本质和过程进行了学习，过程记录如下：<br>　　我在考研的数学科目是数学一，包括了概率论这门课。在概率论中核心之一就是卷积，利用卷积公式可以解决一些较为复杂的概率难题。<br>　　在概率论中的卷积公式：</p>
+<img src="/gallery/6.png" class=""title="tt">
+<p>　　同时也分为一维和二维两种，分别对应的就是一重积分和二重积分，就拿上述公式为例来说，首先积分是一种连续求和的形式 Sum，被积函数 x(p)*h(t-p)。<br>　　可以从这么一个角度这么理解：将 x 函数当作为一个系统的输入，当然这个输入是不稳定的；h 函数便是一个系统的输出，这个输出是稳定的，利用卷积公式求得的是一个系统的剩余存量。</p>
+<table>
+<thead>
+<tr>
+<th align="left">函数</th>
+<th align="left">函数式</th>
+<th align="left">性质</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">第一个函数</td>
+<td align="left">x(p)</td>
+<td align="left">不稳定输入</td>
+</tr>
+<tr>
+<td align="left">第二个函数</td>
+<td align="left">h(t-p)</td>
+<td align="left">稳定输出</td>
+</tr>
+</tbody></table>
+<p>　　CNN 的来源在上周的学习中有所提及，模仿人脑神经网络结构识别图片的过程去进行机器学习。而 CNN 中的卷积和概率论中的卷积是否一样，又有什么联系呢。我带着这样的疑问又开始研究：什么是图像卷积操作？</p>
+<h2 id="卷积过程"><a href="# 卷积过程" class="headerlink" title="卷积过程"></a>卷积过程</h2><p>　　电脑中的一个个图片都可以看成是由一个个像素点所组成的，其本质其实就是一张表格或者矩阵，一种通俗说法一种数学说法，而这张表格中的每一个点就代表了像素的具体的信息，例如灰度值，RGB 值等等，作为属性展现在图片上面。</p>
+<img src="/gallery/7.png" class=""title="tt">
+
+<p>　　利用一个 3·3 的点阵与图像进行一个操作，而这个 3·3 的点阵就被称为卷积核，当然这个卷积核是可以自己设置的，可以是 2·2 或者其他，3·3 比较通用。</p>
+<img src="/gallery/8.png" class=""title="tt">
+
+<p>　　卷积核与图像上的点阵进行一一的矩阵相乘。</p>
+<img src="/gallery/9.png" class=""title="tt">
+
+<p>　　9 个数相乘之后再进行球和操作，由此可以得到一个新值，也就是一个新的像素点。</p>
+<img src="/gallery/10.png" class=""title="tt">
+
+<p>　　利用卷积核将整个图像进行再一次的遍历扫描，由此可以得到一个相比原图像缩小一圈的图像。如果为了使图像在变化前后的大小不变，可以在原图的外围填充一圈全零的像素点，如此的卷积结果得到的图像大小就不会改变。</p>
+<img src="/gallery/11.png" class=""title="tt">
+
+<p>　　但是在这整个操作过程中，没有很明显的与概率论中的卷积公式产生对应的部分。但是如果把目光放到整体的卷积过程上，可以发现图像的卷积操作就是将图片与卷积核先相乘再相加，那就可以确定图像和卷积核分别对应卷积公式中的两个函数，其中图像应该对应不稳定的输入量，而卷积核对应的是稳定的输出量</p>
+<h2 id="卷积操作本质"><a href="# 卷积操作本质" class="headerlink" title="卷积操作本质"></a>卷积操作本质 </h2><h3 id="第一层理解"><a href="# 第一层理解" class="headerlink" title="第一层理解"></a> 第一层理解 </h3><p>　　将卷积公式放在应用里看。首先有一种耳熟能详的规律：蝴蝶效应（一只南美洲亚马逊河流域热带雨林中的蝴蝶，偶尔扇动几下翅膀，可以在两周以后引起美国得克萨斯州的一场龙卷风。）<br>　　如下图，在 x 时刻，蝴蝶扇动了翅膀，而这个行为会对 t 时刻的飓风产生影响，而这个影响会随着时间的变化而发生变化。这个影响力的变化是由 g() 函数来决定的，随时间的变化，这个影响力也在同时发生变化。而在求和后，也就是卷积后就代表着蝴蝶效应的效果。</p>
+<img src="/gallery/12.png" class=""title="tt">
+<p>　　<strong>再抛开具体的例子，可不可以直接抽象为：在某时刻发生了一件事情，而这件事情的产生，它是会受到之前发生的很多事情的影响的，例如在 x 时刻发生了一件事，这件事会对 t 时刻产生影响，具体的影响力还要看从 x 到 t 这段时长，以及影响力本身的变化函数 g()。g 函数就规定了之前发生的事情随时间的影响力的变化。</strong><br>　　要注意的是 m 在这个例子中的横纵轴的具体含义也是可以变化的。</p>
+<h3 id="第二层理解"><a href="# 第二层理解" class="headerlink" title="第二层理解"></a>第二层理解 </h3><p>　　再回到之前的在图像上进行的卷积操作，能不能说成：<strong> 很多像素点对某一个像素点是如何产生影响的。</strong><br>　　有一种卷积操作称为平滑卷积操作，效果是让图片变得更加平滑，更加朦胧。而这个卷积操作中的卷积核就是：</p>
+<img src="/gallery/13.png" class=""title="tt">
+<p>　　这样的卷积核本质上就是找到一个像素点，把它周围的像素点全部加起来求一个平均值。具体的效果如下：</p>
+<img src="/gallery/14.png" class=""title="tt">
+<p>　　将原理和效果对应起来看就好理解了，卷积核的平均求和操作能够使得各像素点的属性差异减小，以此就可以达到平滑的效果。</p>
+<p>　　那么回到之前那个提法：图像的卷积操作就是很多像素点对某一个像素点是如何产生影响的。更加具体地说是，卷积核就是规定了某个像素点的周围像素点是如何对该像素点产生影响的。这是在 3·3 卷积核的情况下，其他的卷积核类似。<br>　　再和与卷积公式相联系去理解这整个计算过程：</p>
+<img src="/gallery/15.png" class=""title="tt">
+<p>　　可以发现的是，卷积操作的相乘求和实质上就是原矩阵与卷积核的翻转后（旋转 180 度）的矩阵的乘积求和，因此在卷积公式中的 g 函数对应的矩阵本身不是卷积核，而是 g 函数对应的转置矩阵才是卷积核。</p>
+<p>　　到这里可以简单做一个总结：<strong>从卷积到图像的卷积操作其中的关键就是要把卷积当作是过去对现在的影响，周围像素点对当前像素点的影响，而卷积公式中的 g 函数就是规定了如何影响的关键。</strong><br>　　那么我们知道，卷积操作是卷积神经网络第一层的关键，那接下来继续学习的就是卷积神经网络第一层到底在干什么，和卷积的关系是什么。</p>
+<h3 id="第三层理解"><a href="# 第三层理解" class="headerlink" title="第三层理解"></a>第三层理解</h3><p>　　上周的学习可以知道通过 CNN 我们可以进行图像识别，而往往需要识别的一些图像都是复杂的、不规整的，虽然人眼能够一眼分辨，但是计算机识别的都是一个个像素点，可以理解为由无数的数字构成的矩阵，对于一些不规整的图像，计算机是无法通过对应标准图像来进行识别的，如下图：</p>
+<img src="/gallery/16.png" class=""title="tt">
+
+<p>　　仔细观察可以发现，两个图像虽然不同，但是局部上是有相同的地方的，因此，卷积神经网络的第一步就是把图像的局部特征给挑出来，再将这些局部特征交给神经网络，由神经网络去判断。<br>　　那么如何去提取这些局部特征呢，答案就是对图像进行卷积操作。那么这就可以和之前关于卷积操作的学习对应起来了。<br>　　从上面的学习可以知道，图像上的卷积操作就是去处理像素点和周围像素点之前的关系，当卷积核是平滑卷积核时，处理完的结果应该是比原图更加清晰的图片；当卷积核是其他种类时，得到的图片效果大大不同，如下所示：</p>
+<img src="/gallery/17.png" class=""title="tt">
+<p>　　如果是用上侧卷积核，得到的图像会忽略纵向边界，只会保留横向的边界；用下侧的卷积核时，得到的图像则会忽略横向边界，只保留纵向的边界。这个时候虽然还是进行的卷积操作，但是与平滑卷积核的效果完全不同了，它们只是把图片中的一些特征给挑了出来。<br>　　因此，卷积核如果挑选的合适，那它就可以对图片进行过滤，把某些特征给保留下来，而其他的特征则被过滤掉了，这样的卷积核又被称为过滤器，图中上下两个卷积核分别称为垂直边界过滤器和水平边界过滤器。<br>之前，我把卷积操作当作周围像素点对当前像素点的影响，数学上就是相乘再相加的一种形式，又可以理解成为自己对周围像素点的一种试探，而卷积核就是试探的模版。过滤器给人的感觉就是这个像素点在进行主动的试探和选择。<br>　　在这种情况下，可以理解为当前像素点对周围像素点的一种主动的试探和选择，通过卷积核把周围有用的特征给保留了下来。</p>
+<h2 id="总结"><a href="# 总结" class="headerlink" title="总结"></a>总结</h2><p>　　学到这里，其实我对卷积的含义和本质有了更深的认知，最后对卷积含义做一个总结：<br>　　第一层：不稳定输入，稳定输出，求系统存量；<br>　　第二层：周围像素点对当前像素点如何产生影响；<br>　　第三层：过滤器的卷积核规定了一个像素点会如何试探周围像素点，筛选图像特征。<br>　　其实这三层意义也分别对了三种应用：信号系统应用、图像处理应用、图像识别应用。</p>
+</div><div class="article-licensing box"><div class="licensing-title"><p>卷积神经网络中的卷积操作本质</p><p><a href="https://crushr.github.io/暑期学习/周报告-钟善男-2021-7-18.html">https://crushr.github.io/暑期学习/周报告-钟善男-2021-7-18.html</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>恶龙</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2021-07-18</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2021-07-25</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="" rel="noopener" target="_blank" title="CC BY-NC-SA 4.0" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i> <i class="fab fa-creative-commons-by"></i> <i class="fab fa-creative-commons-nc"></i> <i class="fab fa-creative-commons-sa"></i> CC BY-NC-SA 4.0</a></p></div></div></div></div></div><hr style="height:1px;margin:1rem 0"><div class="level is-mobile is-flex"><div class="article-tags is-size-7 is-uppercase"><i class="fas fa-tags has-text-grey"></i> <a class="link-muted" rel="tag" href="/">, </a><a class="link-muted" rel="tag" href="/">, </a><a class="link-muted" rel="tag" href="/"> </a></div></div><!--!--></article></div><!--!--><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1 is-sticky"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level" style="margin-bottom:1rem"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-96x96 mx-auto mb-2"><img class="avatar" src="/img/tx2.png" alt="钟善男"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">钟善男</p><p class="is-size-6 is-block">zhongsn_work@163.com</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Xiamen, China</span></p></div></div></nav><nav class="level menu-list is-mobile" style="margin-bottom:1rem"><a class="level-item has-text-centered is-marginless" href="/archives/"><div><p class="heading">文章</p><div><p class="title">1</p></div></div></a><a class="level-item has-text-centered is-marginless" href="/categories/"><div><p class="heading">分类</p><div><p class="title">1</p></div></div></a><a class="level-item has-text-centered is-marginless" href="/tags/"><div><p class="heading">标签</p><div><p class="title">0</p></div></div></a></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://www.github.com/crushr" target="_blank" rel="noopener"><i class="fab fa-github"></i>  关注我</a></div></div></div><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">目录</h3><ul class="menu-list"><li><a class="level is-mobile" href="#卷积过程"><span class="level-left"><span class="level-item">1</span><span class="level-item">卷积过程</span></span></a></li><li><a class="level is-mobile" href="#卷积操作本质"><span class="level-left"><span class="level-item">2</span><span class="level-item">卷积操作本质 </span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#第一层理解"><span class="level-left"><span class="level-item">2.1</span><span class="level-item"> 第一层理解 </span></span></a></li><li><a class="level is-mobile" href="#第二层理解"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">第二层理解 </span></span></a></li><li><a class="level is-mobile" href="#第三层理解"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">第三层理解</span></span></a></li></ul></li><li><a class="level is-mobile" href="#总结"><span class="level-left"><span class="level-item">3</span><span class="level-item">总结</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><!--!--><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">归档</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2021/10/"><span class="level-start"><span class="level-item">十月 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><figure class="media-left"><a class="image" href="/2021/10/30/%E6%B5%8B%E8%AF%95/"><img src="/img/thumbnail.svg" alt="更新步骤"></a></figure><div class="media-content"><p class="date"><time dateTime="2021-10-30T06:28:48.000Z">2021-10-30</time></p><p class="title"><a href="/2021/10/30/%E6%B5%8B%E8%AF%95/">更新步骤</a></p><p class="categories"><a href="/categories/%E6%8F%90%E9%86%92/">提醒</a></p></div></article></div></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">分类</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/%E6%8F%90%E9%86%92/"><span class="level-start"><span class="level-item">提醒</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo1.png" alt="恶龙我要一打五！" height="28"></a><p class="is-size-7"><span>&copy; 2021 恶龙</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a><br><span id="busuanzi_container_site_uv">共<span id="busuanzi_value_site_uv">0</span>个访客</span></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="CC BY-NC-SA 4.0" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><i class="fab fa-creative-commons"></i> <i class="fab fa-creative-commons-by"></i> <i class="fab fa-creative-commons-nc"></i> <i class="fab fa-creative-commons-sa"></i> </a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="AlphaLxy GitHub" href="https://www.github.com/crushr"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdnjs.loli.net/ajax/libs/jquery/3.3.1/jquery.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/moment.js/2.22.2/moment-with-locales.min.js"></script><script src="https://cdnjs.loli.net/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script><script>moment.locale("zh-CN");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><script src="https://cdnjs.loli.net/ajax/libs/cookieconsent/3.1.1/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdnjs.loli.net/ajax/libs/lightgallery/1.6.8/js/lightgallery.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/justifiedGallery/3.7.0/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/KaTeX/0.11.1/katex.min.css"><script src="https://cdnjs.loli.net/ajax/libs/KaTeX/0.11.1/katex.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js" defer></script><script src="https://cdnjs.loli.net/ajax/libs/KaTeX/0.11.1/contrib/mhchem.js" defer></script><script>window.addEventListener("load", function() {
+            document.querySelectorAll('[role="article"] > .content').forEach(function(element) {
+                renderMathInElement(element);
+            });
+        });</script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
