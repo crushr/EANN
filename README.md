@@ -1,2 +1,1 @@
-# EANN
-code for EANN, detecting fake news
+# For my Blog
