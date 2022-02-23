@@ -5,5 +5,9 @@
 ### git remote add origin git@github.com:youname/Test.git //连接远程仓库并建别名：origin
 ### git push -u origin master //将本地仓库的东西提交到地址是origin的地址，master分支下
 
-## 删除github上存在的文件（本地已删除），同步
-###
+## 本地库自己改动后，删除github上的文件以进行同步
+### git commit -a -m .
+### git push
+
+## 远程库自己改动后
+### git pull --rebase origin master
