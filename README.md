@@ -1,6 +1,9 @@
-# github上传步骤
-## git init //初始化本地仓库
-## git add *  //加入所有项目
-## git commit -m "first commit"//提交到要地仓库，并写一些注释
-## git remote add origin git@github.com:youname/Test.git //连接远程仓库并建别名：origin
-## git push -u origin master //将本地仓库的东西提交到地址是origin的地址，master分支下
+## github上传步骤
+### git init //初始化本地仓库
+### git add *  //加入所有项目
+### git commit -m "first commit"//提交到要地仓库，并写一些注释
+### git remote add origin git@github.com:youname/Test.git //连接远程仓库并建别名：origin
+### git push -u origin master //将本地仓库的东西提交到地址是origin的地址，master分支下
+
+## 删除github上存在的文件（本地已删除），同步
+###
