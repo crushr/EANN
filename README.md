@@ -9,5 +9,5 @@
 ### git commit -a -m .
 ### git push
 
-## 远程库自己改动后
+## 远程库自己改动或本地库改动导致本地库落后于远程库，因为不同步可能无法正常push，需要先pull进行同步后再push
 ### git pull --rebase origin master
